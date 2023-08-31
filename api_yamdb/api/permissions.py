@@ -14,3 +14,12 @@ class AuthorOrReadOnly(permissions.BasePermission):
             obj.author == request.user
             or view.action == 'retrieve'
         )
+
+
+class IsModeratorOrAdmin(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        return (
+            request.user.is_moderator
+            or request.user.is_admin
+        )
