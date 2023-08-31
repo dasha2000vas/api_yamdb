@@ -14,14 +14,15 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'reviews.apps.ReviewsConfig',
-    'api.apps.ApiConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'reviews.apps.ReviewsConfig',
+    'api.apps.ApiConfig',
+    'titles.apps.TitlesConfig',
 ]
 
 MIDDLEWARE = [

@@ -8,5 +8,3 @@ def validate_year(value):
         raise ValidationError(
             f'{value} год издания не может быть больше текущего'
         )
-    else:
-        return value
