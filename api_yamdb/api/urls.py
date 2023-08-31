@@ -5,12 +5,14 @@ from .views import ReviewViewSet, CommentViewSet
 
 v1_router = routers.DefaultRouter()
 v1_router.register(
-    r'titles/(?P<title_pk>\d+)/reviews', ReviewViewSet,
+    r'titles/(?P<title_pk>\d+)/reviews',
+    ReviewViewSet,
     basename='reviews'
 )
 v1_router.register(
     r'titles/(?P<title_pk>\d+)/reviews/(?P<review_pk>\d+)/comments',
-    CommentViewSet, basename='comments'
+    CommentViewSet,
+    basename='comments'
 )
 
 urlpatterns = [
