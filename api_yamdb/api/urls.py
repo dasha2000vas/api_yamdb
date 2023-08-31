@@ -3,7 +3,6 @@ from rest_framework import routers
 
 from .views import ReviewViewSet, CommentViewSet
 
-
 v1_router = routers.DefaultRouter()
 v1_router.register(
     r'titles/(?P<title_pk>\d+)/reviews', ReviewViewSet,
@@ -14,6 +13,6 @@ v1_router.register(
     CommentViewSet, basename='comments'
 )
 
-urls = [
+urlpatterns = [
     path('v1/', include(v1_router.urls)),
 ]
