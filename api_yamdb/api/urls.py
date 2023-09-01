@@ -13,9 +13,14 @@ v1_router.register(
     basename='signup',
 )
 v1_router.register(
-    'auth/token',
-    views.VerifyUserViewSet,
-    basename='verify_token',
+    r'titles/(?P<title_pk>\d+)/reviews',
+    views.ReviewViewSet,
+    basename='reviews'
+)
+v1_router.register(
+    r'titles/(?P<title_pk>\d+)/reviews/(?P<review_pk>\d+)/comments',
+    views.CommentViewSet,
+    basename='comments',
 )
 
 urlpatterns = [
