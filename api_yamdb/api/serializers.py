@@ -3,11 +3,22 @@ from django.contrib.auth import get_user_model
 from rest_framework.validators import UniqueTogetherValidator
 
 from titles.models import Review, Comment
+from users.validators import value_validator
 
 User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    username = serializers.RegexField(
+        regex=r'^[\w.@+-]+\Z',
+        max_length=150,
+        required=True,
+        validators=[value_validator],
+    )
+    email = serializers.EmailField(
+        max_length=254,
+        required=True,
+    )
 
     class Meta:
         model = User
@@ -15,9 +26,19 @@ class UserSerializer(serializers.ModelSerializer):
                   'last_name', 'bio', 'role')
 
 
-class TokenSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length=150, required=True)
-    confirmation_code = serializers.CharField(max_length=256, required=True)
+class UserSignUpSerializer(UserSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username', 'email')
+
+
+class TokenSerializer(UserSerializer):
+    confirmation_code = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'confirmation_code')
 
 
 class ReviewSerializer(serializers.ModelSerializer):

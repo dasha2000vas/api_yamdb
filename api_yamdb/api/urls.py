@@ -6,12 +6,12 @@ from . import views
 v1_router = DefaultRouter()
 
 v1_router.register('users', views.UserViewSet, basename='users')
-v1_router.register('users/me', views.MySelfUserViewSet, basename='my_user')
 v1_router.register(
     'auth/signup',
     views.SignUpUserViewSet,
     basename='signup',
 )
+v1_router.register('auth/token', views.VerifyUserViewSet, basename='users')
 v1_router.register(
     r'titles/(?P<title_pk>\d+)/reviews',
     views.ReviewViewSet,

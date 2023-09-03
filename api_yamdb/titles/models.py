@@ -6,9 +6,8 @@ from .validators import validate_year
 
 User = get_user_model()
 
-
-class Title(models.Model):
-    title = models.CharField(max_length=256)
+TEXT_RESTRICTION = 256
+SLUG_RESTRICTION = 50
 
 
 class Review(models.Model):
@@ -32,16 +31,16 @@ class Review(models.Model):
         auto_now_add=True
     )
     title = models.ForeignKey(
-        Title,
+        'Title',
         on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Произведение'
     )
 
     class Meta:
-        verbose_name = 'отзыв'
+        verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        ordering = (-'pub_date',)
+        ordering = ('-pub_date',)
 
 
 class Comment(models.Model):
@@ -64,13 +63,9 @@ class Comment(models.Model):
     )
 
     class Meta:
-        verbose_name = 'комментарий'
+        verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-        ordering = (-'pub_date',)
-
-
-TEXT_RESTRICTION = 256
-SLUG_RESTRICTION = 50
+        ordering = ('-pub_date',)
 
 
 class Genre(models.Model):
@@ -134,8 +129,6 @@ class Title(models.Model):
         Genre,
         related_name='titles',
         verbose_name='Жанр',
-        null=True,
-        on_delete=models.SET_NULL,
     )
     category = models.OneToOneField(
         Category,
