@@ -1,20 +1,24 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.tokens import default_token_generator
+from django.db.models import Avg
+from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.pagination import LimitOffsetPagination
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
-from titles.models import Review, Title
+from titles.models import Review, Title, Category, Genre, Title
 
-from .mixins import CreateOnlyModelViewSet
-from .permissions import IsAdmin, IsAuthorOrReadOnly, IsModeratorOrAdmin
+from .mixins import CreateOnlyModelViewSet, ListCreateDestroyMixin
+from .permissions import IsAdmin, IsAuthorOrReadOnly, IsModeratorOrAdmin, IsAdminOrReadOnly
 from .serializers import (CommentSerializer, ReviewSerializer, TokenSerializer,
-                          UserSerializer, UserSignUpSerializer)
+                          UserSerializer, UserSignUpSerializer, CategorySerializer, GenreSerializer,
+                          TitleCreateSerializer, TitleSerializer)
+from .filters import TitleFilter
 from .utils import create_user
 
 User = get_user_model()
@@ -134,3 +138,29 @@ class CommentViewSet(viewsets.ModelViewSet):
             author=self.request.user,
             review=Review.objects.get(id=self.kwargs.get('review_pk'))
         )
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all().annotate(
+        rating=Avg('reviews__score')
+    )
+    pagination_class = PageNumberPagination
+    permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TitleFilter
+    http_method_names = ['get', 'post', 'patch', 'delete']
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleSerializer
+        return TitleCreateSerializer
+
+
+class CategoryViewSet(ListCreateDestroyMixin):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class GenreViewSet(ListCreateDestroyMixin):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
