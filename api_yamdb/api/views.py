@@ -1,12 +1,11 @@
 from django.db.models import Avg
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, viewsets
+from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 
 from titles.models import Category, Genre, Title
-
 from .filters import TitleFilter
-from .mixins import GenreCategoryMixin
+from .mixins import ListCreateDestroyMixin
 from .permissions import IsAdminOrReadOnly
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleCreateSerializer, TitleSerializer)
@@ -20,6 +19,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly,]
     filter_backends = [DjangoFilterBackend,]
     filterset_class = TitleFilter
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -27,19 +27,11 @@ class TitleViewSet(viewsets.ModelViewSet):
         return TitleCreateSerializer
 
 
-class CategoryViewSet(GenreCategoryMixin):
+class CategoryViewSet(ListCreateDestroyMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAdminOrReadOnly,]
-    filter_backends = [filters.SearchFilter,]
-    search_fields = ('name',)
-    lookup_field = 'slug'
 
 
-class GenreViewSet(GenreCategoryMixin):
+class GenreViewSet(ListCreateDestroyMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = [IsAdminOrReadOnly,]
-    filter_backends = [filters.SearchFilter,]
-    search_fields = ('name',)
-    lookup_field = 'slug'
