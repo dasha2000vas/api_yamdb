@@ -1,21 +1,17 @@
-from rest_framework.routers import DefaultRouter
 from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
 from . import views
 
 v1_router = DefaultRouter()
 
-v1_router.register('users', views.UserViewSet, basename='users')
-v1_router.register(
-    'auth/signup',
-    views.SignUpUserViewSet,
-    basename='signup',
-)
-v1_router.register('auth/token', views.VerifyUserViewSet, basename='users')
+v1_router.register('auth/signup', views.SignUpViewSet)
+v1_router.register('auth/token', views.VerifyViewSet, basename='users')
+v1_router.register('users', views.UserViewSet)
 v1_router.register(
     r'titles/(?P<title_pk>\d+)/reviews',
     views.ReviewViewSet,
-    basename='reviews'
+    basename='reviews',
 )
 v1_router.register(
     r'titles/(?P<title_pk>\d+)/reviews/(?P<review_pk>\d+)/comments',

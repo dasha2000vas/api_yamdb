@@ -1,5 +1,4 @@
 from datetime import timedelta
-
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -109,9 +108,12 @@ STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
 AUTH_USER_MODEL = 'users.User'
 
+
+# Application programming interface
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -122,13 +124,18 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 5,
 }
 
+
+# Token Authorization settings
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-AUTH_EMAIL = 'yamdb@yandex.ru'
+# Email backend
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+
+AUTH_EMAIL = 'yamdb@yandex.ru'
 
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'

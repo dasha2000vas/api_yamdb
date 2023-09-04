@@ -1,6 +1,6 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from .validators import value_validator
@@ -9,9 +9,9 @@ from .validators import value_validator
 class User(AbstractUser):
 
     class Roles(models.TextChoices):
-        USER = 'user', 'Пользователь'
-        MODERATOR = 'moderator', 'Модератор'
-        ADMIN = 'admin', 'Администратор'
+        USER = 'user', _('User')
+        MODERATOR = 'moderator', _('Moderator')
+        ADMIN = 'admin', _('Administrator')
 
     unicode_validator = UnicodeUsernameValidator()
 
@@ -28,8 +28,10 @@ class User(AbstractUser):
     email = models.EmailField(
         _('email address'),
         max_length=254,
-        help_text=_('Required'),
         unique=True,
+        error_messages={
+            'unique': _("A user with that email address already exists."),
+        },
     )
     first_name = models.CharField(
         _('first name'),
@@ -54,8 +56,8 @@ class User(AbstractUser):
     )
 
     class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
+        verbose_name = _('User')
+        verbose_name_plural = _('Users')
 
     @property
     def is_moderator(self):
