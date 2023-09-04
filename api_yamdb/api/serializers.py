@@ -1,21 +1,40 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
+
+from .mixins import UserBaseSerializer
+from titles.models import Category, Genre, Title, Comment, Review
+
+User = get_user_model()
 
 
-from titles.models import Category, Genre, Title
+class UserSerializer(UserBaseSerializer):
+    ...
+
+
+class UserSignUpSerializer(UserBaseSerializer):
+    ...
+
+
+class TokenSerializer(UserBaseSerializer):
+    confirmation_code = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'confirmation_code')
 
 
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Category,
+        model = Category
         fields = ('name', 'slug')
 
 
 class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Genre,
+        model = Genre
         fields = ('name', 'slug')
 
 
@@ -47,29 +66,6 @@ class TitleSerializer(serializers.ModelSerializer):
         )
         model = Title
 
-from rest_framework.validators import UniqueTogetherValidator
-
-from titles.models import Comment, Review
-from .mixins import UserBaseSerializer
-
-User = get_user_model()
-
-
-class UserSerializer(UserBaseSerializer):
-    ...
-
-
-class UserSignUpSerializer(UserBaseSerializer):
-    ...
-
-
-class TokenSerializer(UserBaseSerializer):
-    confirmation_code = serializers.CharField(required=True)
-
-    class Meta:
-        model = User
-        fields = ('username', 'confirmation_code')
-
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
@@ -96,4 +92,3 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('text', 'author', 'pub_date')
-

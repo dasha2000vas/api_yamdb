@@ -6,17 +6,20 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from django.contrib.auth.tokens import default_token_generator
-from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
+from rest_framework.pagination import (LimitOffsetPagination,
+                                       PageNumberPagination)
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
-from titles.models import Review, Title, Category, Genre, Title
 
+from titles.models import Review, Title, Category, Genre, Title
 from .mixins import CreateOnlyModelViewSet, ListCreateDestroyMixin
-from .permissions import IsAdmin, IsAuthorOrReadOnly, IsModeratorOrAdmin, IsAdminOrReadOnly
+from .permissions import (IsAdmin, IsAuthorOrReadOnly,
+                          IsModeratorOrAdmin, IsAdminOrReadOnly)
 from .serializers import (CommentSerializer, ReviewSerializer, TokenSerializer,
-                          UserSerializer, UserSignUpSerializer, CategorySerializer, GenreSerializer,
+                          UserSerializer, UserSignUpSerializer,
+                          CategorySerializer, GenreSerializer,
                           TitleCreateSerializer, TitleSerializer)
 from .filters import TitleFilter
 from .utils import create_user
