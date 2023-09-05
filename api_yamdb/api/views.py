@@ -1,11 +1,10 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Avg
-from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from django.contrib.auth.tokens import default_token_generator
 from rest_framework.pagination import (LimitOffsetPagination,
                                        PageNumberPagination)
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -13,15 +12,14 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
-from titles.models import Review, Title, Category, Genre, Title
-from .mixins import CreateOnlyModelViewSet, ListCreateDestroyMixin
-from .permissions import (IsAdmin, IsAuthorOrReadOnly,
-                          IsModeratorOrAdmin, IsAdminOrReadOnly)
-from .serializers import (CommentSerializer, ReviewSerializer, TokenSerializer,
-                          UserSerializer, UserSignUpSerializer,
-                          CategorySerializer, GenreSerializer,
-                          TitleCreateSerializer, TitleSerializer)
+from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
+from .mixins import CreateOnlyModelViewSet, ListCreateDestroyMixin
+from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorStaffOrReadOnly
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer, TitleSerializer,
+                          TokenSerializer, UserSerializer,
+                          UserSignUpSerializer)
 from .utils import create_user
 
 User = get_user_model()
@@ -113,50 +111,42 @@ class VerifyViewSet(CreateOnlyModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthorOrReadOnly, IsModeratorOrAdmin,)
+    permission_classes = [IsAuthorStaffOrReadOnly]
     http_method_names = ['get', 'post', 'patch', 'delete']
 
+    def get_title(self):
+        return get_object_or_404(Title, pk=self.kwargs['title_pk'])
+
     def get_queryset(self):
-        title = get_object_or_404(Title, id=self.kwargs.get('title_pk'))
-        return title.reviews.all()
+        return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
-        serializer.save(
-            author=self.request.user,
-            title=Title.objects.get(id=self.kwargs.get('title_pk'))
-        )
+        serializer.save(author=self.request.user, title=self.get_title())
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthorOrReadOnly, IsModeratorOrAdmin,)
+    permission_classes = (IsAuthorStaffOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
 
+    def get_review(self):
+        return get_object_or_404(Review, pk=self.kwargs['review_pk'])
+
     def get_queryset(self):
-        review = get_object_or_404(Review, id=self.kwargs.get('review_pk'))
-        return review.comments.all()
+        return self.get_review().comments.all()
 
     def perform_create(self, serializer):
-        serializer.save(
-            author=self.request.user,
-            review=Review.objects.get(id=self.kwargs.get('review_pk'))
-        )
+        serializer.save(author=self.request.user, review=self.get_review())
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().annotate(
-        rating=Avg('reviews__score')
-    )
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
     pagination_class = PageNumberPagination
-    permission_classes = [IsAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend]
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
     http_method_names = ['get', 'post', 'patch', 'delete']
-
-    def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
-            return TitleSerializer
-        return TitleCreateSerializer
 
 
 class CategoryViewSet(ListCreateDestroyMixin):
