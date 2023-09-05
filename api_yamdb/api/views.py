@@ -14,7 +14,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
-from .mixins import CreateOnlyModelViewSet, ListCreateDestroyMixin
+from .mixins import CreateOnlyModelMixin, ListCreateDestroyMixin
 from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorStaffOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer, TitleSerializer,
@@ -25,7 +25,7 @@ from .utils import create_user
 User = get_user_model()
 
 
-class SignUpViewSet(CreateOnlyModelViewSet):
+class SignUpViewSet(CreateOnlyModelMixin):
     serializer_class = UserSignUpSerializer
     permission_classes = [AllowAny]
     queryset = User.objects.all()
@@ -77,7 +77,7 @@ class UserViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class VerifyViewSet(CreateOnlyModelViewSet):
+class VerifyViewSet(CreateOnlyModelMixin):
     serializer_class = TokenSerializer
     permission_classes = [AllowAny]
 
@@ -152,8 +152,10 @@ class TitleViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(ListCreateDestroyMixin):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = [IsAdminOrReadOnly]
 
 
 class GenreViewSet(ListCreateDestroyMixin):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    permission_classes = [IsAdminOrReadOnly]

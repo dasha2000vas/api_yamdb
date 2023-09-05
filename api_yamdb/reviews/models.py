@@ -72,6 +72,7 @@ class Title(models.Model):
         Genre,
         related_name='titles',
         verbose_name='Жанр',
+        through='GenreTitle',
     )
     category = models.ForeignKey(
         Category,
@@ -88,6 +89,11 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class GenreTitle(models.Model):
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
 
 class Review(models.Model):

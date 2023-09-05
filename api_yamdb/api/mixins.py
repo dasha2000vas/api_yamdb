@@ -3,15 +3,15 @@ from rest_framework import filters, mixins, serializers
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.viewsets import GenericViewSet
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from rest_framework.permissions import BasePermission
 
 from users.validators import value_validator
-from .permissions import IsAdminOrReadOnly
 
 User = get_user_model()
 
 
-class CreateOnlyModelViewSet(mixins.CreateModelMixin,
-                             GenericViewSet):
+class CreateOnlyModelMixin(mixins.CreateModelMixin,
+                           GenericViewSet):
     """Creation only mixin"""
 
 
@@ -22,7 +22,6 @@ class ListCreateDestroyMixin(
     GenericViewSet,
 ):
     pagination_class = PageNumberPagination
-    permission_classes = [IsAdminOrReadOnly]
     filter_backends = [filters.SearchFilter]
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -48,3 +47,9 @@ class UserBaseSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'email', 'first_name',
                   'last_name', 'bio', 'role')
+
+
+class AdminPermissionMixin(BasePermission):
+
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.is_admin
