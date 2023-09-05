@@ -6,6 +6,7 @@ from .validators import validate_year
 
 User = get_user_model()
 
+
 TEXT_FIELD_RESTRICTION = 256
 SLUG_FIELD_RESTRICTION = 50
 
