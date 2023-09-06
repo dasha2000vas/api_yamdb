@@ -72,7 +72,7 @@ class Title(models.Model):
         related_name='titles',
         verbose_name='Жанр',
     )
-    category = models.OneToOneField(
+    category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         null=True,
