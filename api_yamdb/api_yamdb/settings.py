@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from pathlib import Path
 
@@ -23,7 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
-    'titles.apps.TitlesConfig',
+    'reviews.apps.ReviewsConfig',
 ]
 
 MIDDLEWARE = [
@@ -103,8 +104,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
+CSV_FILES_DIR = os.path.join(STATICFILES_DIRS[0], 'data')
 
 AUTH_USER_MODEL = 'users.User'
 
