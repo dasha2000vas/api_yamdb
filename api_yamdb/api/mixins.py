@@ -7,6 +7,7 @@ from rest_framework.permissions import BasePermission
 
 from users.validators import value_validator
 
+
 User = get_user_model()
 
 
@@ -53,3 +54,4 @@ class AdminPermissionMixin(BasePermission):
 
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.is_admin
+

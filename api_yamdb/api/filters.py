@@ -15,8 +15,9 @@ class TitleFilter(filters.FilterSet):
         field_name='genre',
         queryset=Genre.objects.all(),
         to_field_name='slug'
-    )
 
     class Meta:
         model = Title
         fields = ['category', 'genre', 'name', 'year']
+
+

@@ -87,10 +87,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         method = self.context['request'].method
 
         if method == 'POST' and Review.objects.filter(
-            author=author, title_id=title_id
+            author=author, title_id=title_id,
         ).exists():
             raise ValidationError(
-                'You have already reviewed this title'
+                'You have already reviewed this title',
             )
         return data
 

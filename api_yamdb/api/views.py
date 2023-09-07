@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import AccessToken
 
+
 from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
 from .mixins import CreateOnlyModelMixin, ListCreateDestroyMixin
@@ -23,6 +25,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
 from .utils import create_user
 
 User = get_user_model()
+
 
 
 class SignUpViewSet(CreateOnlyModelMixin):

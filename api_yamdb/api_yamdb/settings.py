@@ -108,6 +108,9 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 CSV_FILES_DIR = os.path.join(STATICFILES_DIRS[0], 'data')
 
+
+# User interface
+
 AUTH_USER_MODEL = 'users.User'
 
 
