@@ -4,9 +4,7 @@ from .mixins import AdminPermissionMixin
 
 
 class IsAdmin(AdminPermissionMixin):
-
-    def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_admin
+    ...
 
 
 class IsAdminOrReadOnly(AdminPermissionMixin):
