@@ -1,40 +1,33 @@
-from rest_framework import permissions
+from rest_framework.permissions import SAFE_METHODS, BasePermission
+
+from .mixins import AdminPermissionMixin
 
 
-class IsAdmin(permissions.BasePermission):
+class IsAdmin(AdminPermissionMixin):
+    ...
+
+
+class IsAdminOrReadOnly(AdminPermissionMixin):
 
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_admin
+        is_admin = super().has_permission(request, view)
+        return (is_admin or request.method in SAFE_METHODS)
 
 
-class IsAuthorOrReadOnly(permissions.BasePermission):
+class IsAuthorStaffOrReadOnly(BasePermission):
 
     def has_permission(self, request, view):
         return (
-            request.method in permissions.SAFE_METHODS
+            request.method in SAFE_METHODS
             or request.user.is_authenticated
         )
 
     def has_object_permission(self, request, view, obj):
         return (
-            obj.author == request.user
-            or view.action == 'retrieve'
-        )
-
-
-class IsModeratorOrAdmin(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        return (
-            request.user.is_moderator
-            or request.user.is_admin
-        )
-
-
-class IsAdminOrReadOnly(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        return (
-            request.method in permissions.SAFE_METHODS
-            or (request.user.is_authenticated and request.user.is_admin)
+            request.method in SAFE_METHODS
+            or (
+                request.user.is_admin
+                or request.user.is_moderator
+                or request.user == obj.author
+            )
         )

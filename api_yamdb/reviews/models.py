@@ -6,20 +6,21 @@ from .validators import validate_year
 
 User = get_user_model()
 
-TEXT_RESTRICTION = 256
-SLUG_RESTRICTION = 50
+
+TEXT_FIELD_RESTRICTION = 256
+SLUG_FIELD_RESTRICTION = 50
 
 
 class Genre(models.Model):
     name = models.CharField(
         'Жанр',
-        max_length=TEXT_RESTRICTION,
+        max_length=TEXT_FIELD_RESTRICTION,
     )
     slug = models.SlugField(
-        max_length=SLUG_RESTRICTION,
+        'Идентификатор',
         db_index=True,
+        max_length=SLUG_FIELD_RESTRICTION,
         unique=True,
-        verbose_name='Иденификатор',
     )
 
     class Meta:
@@ -34,10 +35,10 @@ class Genre(models.Model):
 class Category(models.Model):
     name = models.CharField(
         'Категория',
-        max_length=TEXT_RESTRICTION,
+        max_length=TEXT_FIELD_RESTRICTION,
     )
     slug = models.SlugField(
-        max_length=SLUG_RESTRICTION,
+        max_length=SLUG_FIELD_RESTRICTION,
         db_index=True,
         unique=True,
         verbose_name='Идентификатор',
@@ -55,14 +56,14 @@ class Category(models.Model):
 class Title(models.Model):
     name = models.CharField(
         'Произведение',
-        max_length=TEXT_RESTRICTION,
+        max_length=TEXT_FIELD_RESTRICTION,
     )
     year = models.IntegerField(
         'Year of creation',
         validators=(validate_year,)
     )
     description = models.TextField(
-        max_length=TEXT_RESTRICTION,
+        max_length=TEXT_FIELD_RESTRICTION,
         null=True,
         blank=True,
         verbose_name='Описание'
@@ -71,6 +72,7 @@ class Title(models.Model):
         Genre,
         related_name='titles',
         verbose_name='Жанр',
+        through='GenreTitle',
     )
     category = models.ForeignKey(
         Category,
@@ -87,6 +89,11 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class GenreTitle(models.Model):
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    title = models.ForeignKey(Title, on_delete=models.CASCADE)
 
 
 class Review(models.Model):
@@ -120,6 +127,7 @@ class Review(models.Model):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         ordering = ('-pub_date',)
+        unique_together = ['author', 'title']
 
 
 class Comment(models.Model):
