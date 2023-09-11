@@ -2,11 +2,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Avg
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.pagination import (LimitOffsetPagination,
-                                       PageNumberPagination)
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -17,9 +17,9 @@ from .filters import TitleFilter
 from .mixins import CreateOnlyModelMixin, ListCreateDestroyMixin
 from .permissions import IsAdmin, IsAdminOrReadOnly, IsAuthorStaffOrReadOnly
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSerializer,
-                          TokenSerializer, UserSerializer,
-                          UserSignUpSerializer)
+                          GenreSerializer, ReviewSerializer,
+                          TitleSerializer, TokenSerializer,
+                          UserSerializer, UserSignUpSerializer)
 from .utils import create_user
 
 User = get_user_model()
@@ -62,16 +62,12 @@ class UserViewSet(ModelViewSet):
                 data=request.data,
                 partial=True,
             )
-            if serializer.is_valid():
-                serializer.validated_data['role'] = request.user.role
-                serializer.save()
-                return Response(
-                    serializer.validated_data,
-                    status=status.HTTP_200_OK,
-                )
+            serializer.is_valid(raise_exception=True)
+            serializer.validated_data['role'] = request.user.role
+            serializer.save()
             return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST,
+                serializer.validated_data,
+                status=status.HTTP_200_OK,
             )
         serializer = self.get_serializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -84,11 +80,10 @@ class VerifyViewSet(CreateOnlyModelMixin):
     def get_queryset(self):
         serializer = self.get_serializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
-        user = get_object_or_404(
+        return get_object_or_404(
             User,
             username=serializer.validated_data['username'],
         )
-        return user
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -115,7 +110,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_title(self):
-        return get_object_or_404(Title, pk=self.kwargs['title_pk'])
+        return get_object_or_404(Title, id=self.kwargs.get('title_id'))
 
     def get_queryset(self):
         return self.get_title().reviews.all()
@@ -130,7 +125,11 @@ class CommentViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_review(self):
-        return get_object_or_404(Review, pk=self.kwargs['review_pk'])
+        return get_object_or_404(
+            Review,
+            id=self.kwargs.get('review_id'),
+            title__id=self.kwargs.get('title_id'),
+        )
 
     def get_queryset(self):
         return self.get_review().comments.all()
@@ -140,9 +139,11 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().annotate(
+        rating=Avg('reviews__score')
+    )
     serializer_class = TitleSerializer
-    pagination_class = PageNumberPagination
+    pagination_class = LimitOffsetPagination
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter

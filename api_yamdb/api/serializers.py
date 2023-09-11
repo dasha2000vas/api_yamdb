@@ -1,20 +1,40 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Avg
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from django.contrib.auth.validators import UnicodeUsernameValidator
 
 from reviews.models import Category, Comment, Genre, Review, Title
-from .mixins import UserBaseSerializer
+from api.validators import value_validator
+
+USERNAME_REGEX = UnicodeUsernameValidator.regex
 
 User = get_user_model()
 
 
+class UserBaseSerializer(serializers.ModelSerializer):
+    """General serializer for all types of users"""
+    username = serializers.RegexField(
+        regex=USERNAME_REGEX,
+        max_length=150,
+        required=True,
+        validators=[value_validator],
+    )
+    email = serializers.EmailField(
+        max_length=254,
+        required=True,
+    )
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
+
+
 class UserSerializer(UserBaseSerializer):
-    ...
+    pass
 
 
 class UserSignUpSerializer(UserBaseSerializer):
-    ...
+    pass
 
 
 class TokenSerializer(UserBaseSerializer):
@@ -49,20 +69,13 @@ class TitleSerializer(serializers.ModelSerializer):
         queryset=Genre.objects.all(),
         many=True,
     )
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
         fields = (
             'id', 'rating', 'name', 'year', 'description', 'genre', 'category',
         )
-
-    def get_rating(self, obj):
-        reviews = obj.reviews.all()
-        if reviews.exists():
-            average_score = reviews.aggregate(Avg('score'))['score__avg']
-            return average_score
-        return None
 
     def to_representation(self, instance):
         repr = super().to_representation(instance)
@@ -82,14 +95,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ['id', 'author', 'text', 'pub_date', 'score']
 
     def validate(self, data):
-        title_id = self.context['view'].kwargs['title_pk']
+        title_id = self.context['view'].kwargs['title_id']
         author = self.context['request'].user
         method = self.context['request'].method
 
-        if method == 'POST' and Review.objects.filter(
-            author=author, title_id=title_id
-        ).exists():
-            raise ValidationError(
+        if method == 'POST' and author.reviews.filter(title=title_id).exists():
+            raise serializers.ValidationError(
                 'You have already reviewed this title'
             )
         return data

@@ -4,7 +4,7 @@ from .mixins import AdminPermissionMixin
 
 
 class IsAdmin(AdminPermissionMixin):
-    ...
+    pass
 
 
 class IsAdminOrReadOnly(AdminPermissionMixin):

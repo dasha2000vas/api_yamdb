@@ -9,6 +9,8 @@ User = get_user_model()
 
 TEXT_FIELD_RESTRICTION = 256
 SLUG_FIELD_RESTRICTION = 50
+MIN_SCORE_VALUE = 1
+MAX_SCORE_VALUE = 10
 
 
 class Genre(models.Model):
@@ -58,8 +60,9 @@ class Title(models.Model):
         'Произведение',
         max_length=TEXT_FIELD_RESTRICTION,
     )
-    year = models.IntegerField(
+    year = models.PositiveSmallIntegerField(
         'Year of creation',
+        db_index=True,
         validators=(validate_year,)
     )
     description = models.TextField(
@@ -104,12 +107,12 @@ class Review(models.Model):
         related_name='reviews',
         verbose_name='Автор'
     )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         'Оценка',
         default=1,
         validators=[
-            MinValueValidator(1),
-            MaxValueValidator(10)
+            MinValueValidator(MIN_SCORE_VALUE),
+            MaxValueValidator(MAX_SCORE_VALUE)
         ]
     )
     pub_date = models.DateTimeField(
