@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from reviews.models import Category, Comment, Genre, Review, Title
 from api.validators import value_validator

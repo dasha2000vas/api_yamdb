@@ -6,8 +6,16 @@ from . import views
 v1_router = DefaultRouter()
 
 auth_urls = [
-    path('signup/', views.SignUpViewSet.as_view({'post': 'create'}), name='signup'),
-    path('token/', views.VerifyViewSet.as_view({'post': 'create'}), name='token'),
+    path(
+        'signup/',
+        views.SignUpViewSet.as_view({'post': 'create'}),
+        name='signup'
+    ),
+    path(
+        'token/',
+        views.VerifyViewSet.as_view({'post': 'create'}),
+        name='token'
+    ),
 ]
 
 v1_router.register('users', views.UserViewSet)
