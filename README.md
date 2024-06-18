@@ -138,6 +138,15 @@ python manage.py runserver
     * "score": "integer" <mark>(required)</mark>,
     * "pub_date": "datetime"
 
+---
+
+## ✏️Авторы
+
+| Имя  | GitHub |
+| ------------- | :-----: |
+| Александр Быньков  | [✔️](https://github.com/BIXBER) |
+| Дарья Василевская  | [✔️](https://github.com/dasha2000vas) |
+| Павел Нестеров     | [✔️](https://github.com/nesterovv89) |
 
 ---
 ### Примечание:
